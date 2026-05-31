@@ -1,0 +1,8 @@
+/.env
+/pytest.ini
+/prototype_3d
+/.vscode
+/.kiro
+/__pycache__
+/.hypothesis
+/.pytest_cache

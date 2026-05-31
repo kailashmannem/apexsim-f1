@@ -1,0 +1,12 @@
+fastf1>=3.4.0
+pandas>=2.2.0
+numpy>=1.26.0
+streamlit>=1.36.0
+plotly>=5.22.0
+scikit-learn>=1.5.0
+ibm-watsonx-ai>=1.1.0
+python-dotenv>=1.0.0
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+pytest>=8.2.0
+hypothesis>=6.100.0
