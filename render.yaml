@@ -10,14 +10,3 @@ services:
       name: f1-cache
       mountPath: /opt/render/project/src/f1_cache
       sizeGB: 10
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.12.0
-      - key: FASTF1_CACHE_DIR
-        value: /opt/render/project/src/f1_cache
-      - key: WATSONX_API_KEY
-        sync: false
-      - key: WATSONX_PROJECT_ID
-        sync: false
-      - key: WATSONX_URL
-        value: "https://us-south.ml.cloud.ibm.com"
