@@ -202,7 +202,7 @@ def load_selected_session(selected: dict[str, Any]) -> None:
     )
     with st.spinner("Loading FastF1 telemetry..."):
         try:
-            dataset, _weather = DataEngine().load_session(
+            dataset = DataEngine().load_session(
                 int(selected["year"]),
                 int(selected["event_round"]),
                 str(selected["session_type"]),

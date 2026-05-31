@@ -46,7 +46,7 @@ app = FastAPI(title="ApexSim AI API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"], # Allow requests from Vercel and localhost
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -114,7 +114,7 @@ def get_telemetry(
     driver2: str = Query(...),
 ):
     try:
-        dataset, _weather = engine().load_session(
+        dataset = engine().load_session(
             year, event_round, session_type, driver1, driver2
         )
     except TelemetryUnavailableError as exc:

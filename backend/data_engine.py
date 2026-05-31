@@ -58,12 +58,6 @@ class WaypointRow:
     lap: int = 1
 
 
-@dataclass(frozen=True)
-class WeatherStats:
-    track_temperature: float = 25.0
-    wind_speed: float = 0.0
-    wind_direction: float = 0.0
-
 
 @dataclass(frozen=True)
 class EventOption:
@@ -145,7 +139,7 @@ class DataEngine:
 
     def get_driver_options(self, year: int, event_round_or_name: int | str, session_type: str) -> list[str]:
         """Return driver abbreviations present in the selected FastF1 session."""
-        session = self._load_fastf1_session(year, event_round_or_name, session_type, telemetry=False, weather=False)
+        session = self._load_fastf1_session(year, event_round_or_name, session_type, telemetry=False)
         laps = getattr(session, "laps", None)
         if laps is None or len(laps) == 0:
             raise TelemetryUnavailableError(
@@ -173,14 +167,14 @@ class DataEngine:
         session_type: str,
         ref_driver: str,
         user_driver: str,
-    ) -> tuple[pd.DataFrame, WeatherStats]:
+    ) -> pd.DataFrame:
         """Load a FastF1 session and return a waypoint comparison dataset.
 
         For race/sprint sessions all common laps are concatenated; for other
         session types the fastest lap of each driver is used.
         """
         self._enable_cache()
-        session = self._load_fastf1_session(year, location, session_type, telemetry=True, weather=True)
+        session = self._load_fastf1_session(year, location, session_type, telemetry=True)
 
         if self._is_race_session(session_type):
             baseline_tel, driver_tel, lap_boundaries = self._build_race_telemetry(
@@ -196,8 +190,7 @@ class DataEngine:
             dataset = self._resample(baseline_tel, driver_tel)
             dataset["lap"] = 1
 
-        weather = self._extract_weather(session)
-        return dataset, weather
+        return dataset
 
     def _is_race_session(self, session_type: str) -> bool:
         """Return True if the session type corresponds to a race or sprint."""
@@ -291,7 +284,6 @@ class DataEngine:
         session_type: str,
         *,
         telemetry: bool,
-        weather: bool,
     ) -> Any:
         session_identifier = self._session_identifier(year, event_round_or_name, session_type)
         try:
@@ -310,7 +302,7 @@ class DataEngine:
             ) from exc
 
         try:
-            session.load(laps=True, telemetry=telemetry, weather=weather, messages=False)
+            session.load(laps=True, telemetry=telemetry, weather=False, messages=False)
         except TypeError:
             session.load()
         except Exception as exc:
@@ -491,35 +483,7 @@ class DataEngine:
             result[target] = interp_values
         return result
 
-    def _extract_weather(self, session: Any) -> WeatherStats:
-        """Extract average session weather, falling back to MVP defaults."""
-        weather = getattr(session, "weather_data", None)
-        if weather is None:
-            LOGGER.warning("Weather data absent; using default weather values")
-            return WeatherStats()
 
-        weather_df = pd.DataFrame(weather)
-        required = ("TrackTemperature", "WindSpeed", "WindDirection")
-        if weather_df.empty or any(column not in weather_df.columns for column in required):
-            LOGGER.warning("Weather data incomplete; using default weather values")
-            return WeatherStats()
-
-        try:
-            values = {
-                column: pd.to_numeric(weather_df[column], errors="coerce").dropna()
-                for column in required
-            }
-            if any(series.empty for series in values.values()):
-                LOGGER.warning("Weather data contains no numeric samples; using default weather values")
-                return WeatherStats()
-            return WeatherStats(
-                track_temperature=float(values["TrackTemperature"].mean()),
-                wind_speed=float(values["WindSpeed"].mean()),
-                wind_direction=float(values["WindDirection"].mean()),
-            )
-        except Exception:
-            LOGGER.warning("Weather extraction failed; using default weather values", exc_info=True)
-            return WeatherStats()
 
     def _string_or_empty(self, value: Any) -> str:
         if value is None or pd.isna(value):

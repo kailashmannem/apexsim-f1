@@ -59,6 +59,7 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
       return;
     }
     let cancelled = false;
+    setError("");
     fetchSessions(year, selectedEvent.round_number)
       .then((data) => {
         if (cancelled) return;
@@ -79,6 +80,7 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
     }
     let cancelled = false;
     setLoading("Discovering drivers…");
+    setError("");
     fetchDrivers(year, selectedEvent.round_number, selectedSession)
       .then((data) => {
         if (cancelled) return;
