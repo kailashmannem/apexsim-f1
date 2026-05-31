@@ -4,6 +4,9 @@ export const metadata = {
   title: "ApexSim AI – F1 Telemetry Analysis",
   description:
     "Compare Formula 1 driver telemetry side-by-side in stunning 3D with live AI coaching powered by IBM Granite and FastF1.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

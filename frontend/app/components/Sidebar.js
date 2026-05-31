@@ -115,7 +115,7 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
     <aside className="sidebar">
       {/* Brand */}
       <div className="sidebar-brand">
-        <h1>ApexSim F1</h1>
+        <img src="/logo.png" alt="ApexSim F1 Logo" className="brand-logo" />
       </div>
 
       {/* FastF1 Session Section */}
