@@ -198,7 +198,8 @@ class GraniteInsightProvider:
             "You are ApexSim AI, an F1 race engineer giving live telemetry coaching. "
             "Compare how Driver 1 and Driver 2 are driving this part of the lap. "
             "Use only the supplied FastF1 telemetry. Give one or two concise, actionable sentences. "
-            "Do not discuss weather, invent lap facts, sector names, setup changes, or unsafe driving advice.\n\n"
+            "Do not discuss weather, invent lap facts, sector names, setup changes, or unsafe driving advice. "
+            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences.\n\n"
             f"Session: {metadata or 'not supplied'}\n"
             f"Waypoint: idx={int(value(waypoint, 'idx'))}, lap={int(value(waypoint, 'lap'))}, distance_m={value(waypoint, 'distance'):.1f}\n"
             f"Driver 1: speed_kmh={value(waypoint, 'baseline_speed'):.1f}, "
@@ -223,7 +224,8 @@ class GraniteInsightProvider:
             "You are ApexSim AI, an F1 race engineer giving live telemetry coaching. "
             "Compare the overall performance of Driver 1 and Driver 2 over the specified lap. "
             "Provide strategic, high-level advice based on their average speeds, throttle, and braking profiles for this lap. "
-            "Use only the supplied data. Give two or three concise, actionable sentences.\n\n"
+            "Use only the supplied data. Give two or three concise, actionable sentences. "
+            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences.\n\n"
             f"Session: {metadata or 'not supplied'}\n"
             f"Lap: {getattr(lap_summary, 'lap', 1)}\n"
             f"Driver 1 Lap Averages: speed_kmh={getattr(lap_summary, 'avg_baseline_speed', 0):.1f}, throttle_pct={getattr(lap_summary, 'avg_baseline_throttle', 0):.1f}, max_brake={getattr(lap_summary, 'max_baseline_brake', 0):.1f}\n"
@@ -272,6 +274,13 @@ class GraniteInsightProvider:
         else:
             text = str(response)
         text = text.strip()
+        
+        # Safety net: Strip out appended notes that models sometimes add
+        if "Note:" in text:
+            text = text.split("Note:")[0].strip()
+        elif "Note that" in text:
+            text = text.split("Note that")[0].strip()
+            
         if not text:
             raise RuntimeError("IBM Granite returned an empty insight")
         return " ".join(text.split())
