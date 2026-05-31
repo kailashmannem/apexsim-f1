@@ -194,12 +194,14 @@ class GraniteInsightProvider:
         metadata = ", ".join(
             f"{key}={val}" for key, val in context.items() if val is not None and str(val).strip()
         )
-        return (
+        system_prompt = (
             "You are ApexSim AI, an F1 race engineer giving live telemetry coaching. "
             "Compare how Driver 1 and Driver 2 are driving this part of the lap. "
             "Use only the supplied FastF1 telemetry. Give one or two concise, actionable sentences. "
             "Do not discuss weather, invent lap facts, sector names, setup changes, or unsafe driving advice. "
-            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences.\n\n"
+            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences."
+        )
+        user_prompt = (
             f"Session: {metadata or 'not supplied'}\n"
             f"Waypoint: idx={int(value(waypoint, 'idx'))}, lap={int(value(waypoint, 'lap'))}, distance_m={value(waypoint, 'distance'):.1f}\n"
             f"Driver 1: speed_kmh={value(waypoint, 'baseline_speed'):.1f}, "
@@ -208,9 +210,9 @@ class GraniteInsightProvider:
             f"throttle_pct={value(waypoint, 'driver_throttle'):.1f}, brake={value(waypoint, 'driver_brake'):.1f}\n"
             f"Deltas: speed_kmh={value(waypoint, 'speed_delta'):+.1f}, "
             f"throttle_pct={value(waypoint, 'throttle_delta'):+.1f}, "
-            f"line_variance_m={value(waypoint, 'spatial_deviation'):.2f}\n"
-            "Coaching:"
+            f"line_variance_m={value(waypoint, 'spatial_deviation'):.2f}"
         )
+        return f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
     def build_lap_prompt(
         self,
@@ -220,19 +222,21 @@ class GraniteInsightProvider:
         metadata = ", ".join(
             f"{key}={val}" for key, val in context.items() if val is not None and str(val).strip()
         )
-        return (
+        system_prompt = (
             "You are ApexSim AI, an F1 race engineer giving live telemetry coaching. "
             "Compare the overall performance of Driver 1 and Driver 2 over the specified lap. "
             "Provide strategic, high-level advice based on their average speeds, throttle, and braking profiles for this lap. "
             "Use only the supplied data. Give two or three concise, actionable sentences. "
-            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences.\n\n"
+            "Do NOT include any notes, explanations, or conversational filler. ONLY output the coaching sentences."
+        )
+        user_prompt = (
             f"Session: {metadata or 'not supplied'}\n"
             f"Lap: {getattr(lap_summary, 'lap', 1)}\n"
             f"Driver 1 Lap Averages: speed_kmh={getattr(lap_summary, 'avg_baseline_speed', 0):.1f}, throttle_pct={getattr(lap_summary, 'avg_baseline_throttle', 0):.1f}, max_brake={getattr(lap_summary, 'max_baseline_brake', 0):.1f}\n"
             f"Driver 2 Lap Averages: speed_kmh={getattr(lap_summary, 'avg_driver_speed', 0):.1f}, throttle_pct={getattr(lap_summary, 'avg_driver_throttle', 0):.1f}, max_brake={getattr(lap_summary, 'max_driver_brake', 0):.1f}\n"
-            f"Average Deltas for Lap: speed_kmh={getattr(lap_summary, 'avg_speed_delta', 0):+.1f}, throttle_pct={getattr(lap_summary, 'avg_throttle_delta', 0):+.1f}, max_line_variance_m={getattr(lap_summary, 'max_spatial_deviation', 0):.2f}\n"
-            "Lap Summary Coaching:"
+            f"Average Deltas for Lap: speed_kmh={getattr(lap_summary, 'avg_speed_delta', 0):+.1f}, throttle_pct={getattr(lap_summary, 'avg_throttle_delta', 0):+.1f}, max_line_variance_m={getattr(lap_summary, 'max_spatial_deviation', 0):.2f}"
         )
+        return f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
     def _get_model(self) -> Any:
         if self._model is None:
