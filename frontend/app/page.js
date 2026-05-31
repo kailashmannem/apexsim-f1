@@ -57,7 +57,6 @@ export default function Home() {
   const [sessionMeta, setSessionMeta] = useState(null);
   const [waypointIdx, setWaypointIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [insightMode, setInsightMode] = useState("IBM Granite");
   const [commentary, setCommentary] = useState([]);
   const [pendingInsight, setPendingInsight] = useState(null);
   const [aiWarning, setAiWarning] = useState("");
@@ -114,7 +113,7 @@ export default function Home() {
         setPendingInsight(currentLap);
         isFetchingInsight.current = true;
         
-        fetchLapInsight(lapSummary, insightMode, {
+        fetchLapInsight(lapSummary, "IBM Granite", {
           year: sessionMeta?.year,
           event: sessionMeta?.eventName,
           session_type: sessionMeta?.sessionType,
@@ -139,7 +138,7 @@ export default function Home() {
           });
       }
     },
-    [payload, insightMode, sessionMeta]
+    [payload, sessionMeta]
   );
 
   /* ── Current point ─────────────────────────────────────────── */
@@ -160,8 +159,6 @@ export default function Home() {
         telemetryLoaded={!!payload}
         playing={playing}
         onTogglePlay={() => setPlaying((p) => !p)}
-        insightMode={insightMode}
-        onInsightModeChange={setInsightMode}
       />
 
       <div className="main-content">

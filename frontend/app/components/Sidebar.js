@@ -8,7 +8,7 @@ import {
   fetchHealth,
 } from "../lib/api";
 
-export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTogglePlay, insightMode, onInsightModeChange }) {
+export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTogglePlay }) {
   const currentYear = Math.min(new Date().getFullYear(), 2025);
   const [year, setYear] = useState(currentYear);
   const [events, setEvents] = useState([]);
@@ -107,9 +107,9 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
       sessionType: selectedSession,
       driver1,
       driver2,
-      insightMode,
+      insightMode: "IBM Granite",
     });
-  }, [year, selectedEvent, selectedSession, driver1, driver2, insightMode, onLoadSession]);
+  }, [year, selectedEvent, selectedSession, driver1, driver2, onLoadSession]);
 
   return (
     <aside className="sidebar">
@@ -204,21 +204,6 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
         </div>
       </div>
 
-      {/* Insights */}
-      <div className="sidebar-section">
-        <h2>Insights</h2>
-        <div className="field">
-          <label htmlFor="insight-mode">Insight Mode</label>
-          <select
-            id="insight-mode"
-            value={insightMode}
-            onChange={(e) => onInsightModeChange(e.target.value)}
-          >
-            <option value="IBM Granite">IBM Granite</option>
-            <option value="Rule fallback">Rule fallback</option>
-          </select>
-        </div>
-      </div>
 
       {/* Actions */}
       <div className="sidebar-section">
@@ -236,15 +221,14 @@ export default function Sidebar({ onLoadSession, telemetryLoaded, playing, onTog
           )}
         </button>
 
-        <div className="toggle-group">
-          <span>Play</span>
-          <button
-            className={`toggle ${playing ? "active" : ""}`}
-            onClick={onTogglePlay}
-            disabled={!telemetryLoaded}
-            aria-label="Toggle playback"
-          />
-        </div>
+        <button
+          className={`btn ${playing ? "btn" : "btn-primary"}`}
+          onClick={onTogglePlay}
+          disabled={!telemetryLoaded}
+          style={{ width: "100%", marginTop: "8px" }}
+        >
+          {playing ? "⏸ Pause Telemetry" : "▶ Play Telemetry"}
+        </button>
       </div>
 
       {/* Status */}
